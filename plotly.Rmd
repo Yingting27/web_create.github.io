@@ -1,0 +1,69 @@
+---
+title: "Projects"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+# plotly
+
+```{r}
+library(tidyverse)
+library(plotly)
+library(p8105.datasets)
+  
+```
+ 
+
+focus on NYC Airbnb data
+```{r}
+data("nyc_airbnb")
+
+nyc_airbnb = 
+  nyc_airbnb |> 
+  mutate(stars = review_scores_location /2) |> 
+  select(borough = neighbourhood_group,
+         neighbourhood, stars, price, room_type,lat,long) |> 
+  drop_na(stars) |> 
+  filter(
+    borough == "Manhattan",
+    room_type == "Entire home/apt",
+    price %in% 100:500
+  )
+```
+
+let's mkae a scatterplot!
+
+```{r}
+nyc_airbnb |> 
+  mutate(text_label = str_c("Price: $", price, "\nRating: ", stars)) |> 
+  plot_ly(x = ~lat, y = ~long, color = ~price, text = ~text_label,
+          type = "scatter", mode = "markers", alpha = 0.5)
+
+#plotly can see the exact data that you want instead of using ggplot
+#you can zoom the chart, so you can see what the range you want, and double click to turn back
+
+#text function in plotly can add labels you want in the chart, when you go through them. before that, you need to mutate a new variable that can show the type of labels; slash n is getting a line break (change to other paragraph)
+```
+ Let's mkae a box plot!
+ 
+```{r}
+nyc_airbnb |> 
+  mutate(neighbourhood = fct_reorder(neighbourhood, price)) |> 
+  plot_ly(y = ~price, color  = ~neighbourhood, type = "box", colors = "viridis")
+
+#don care about the variable city, just click that to skip them
+
+```
+ 
+ 
+let's make a bar plot!
+
+```{r}
+nyc_airbnb |> 
+  count(neighbourhood) |> 
+  mutate(neighbourhood = fct_reorder(neighbourhood, n)) |> 
+  plot_ly(x = ~neighbourhood, y = ~n, type = "bar", color = "viridis")
+```
+
